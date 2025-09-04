@@ -4,6 +4,9 @@
   "description": "Create a GraphQL API for a book review platform where users can browse books, submit reviews, and manage their accounts.",
   "main": "index.js",
   "scripts": {
+    "lint": "eslint .",
+    "lint:fix": "eslint . --fix",
+    "format": "prettier --write .",
     "dev": "nodemon src/index.js",
     "start": "node src/index.js",
     "test": "jest"
@@ -19,6 +22,8 @@
   "devDependencies": {
     "@eslint/js": "^9.34.0",
     "eslint": "^9.34.0",
+    "eslint-config-prettier": "^10.1.8",
+    "eslint-plugin-prettier": "^5.5.4",
     "globals": "^16.3.0",
     "jest": "^30.1.3",
     "nodemon": "^3.1.10",
