@@ -1,4 +1,4 @@
-name: Gemini CLI Automation
+name: CI + Gemini AI Review
 
 on:
   pull_request:
@@ -8,7 +8,7 @@ on:
   workflow_dispatch:
 
 jobs:
-  ai-assistant:
+  ci-and-gemini:
     runs-on: ubuntu-latest
     permissions:
       contents: read
@@ -18,20 +18,27 @@ jobs:
     steps:
       - uses: actions/checkout@v4
 
-      - name: Setup Node.js
+      - name: Set up Node.js and pnpm
         uses: actions/setup-node@v4
         with:
           node-version: 18
-
-      - name: Install dependencies
-        uses: pnpm/action-setup@v2
+      - uses: pnpm/action-setup@v2
         with:
-          version: 9
-          run_install: false
+          version: latest
+          run_install: true
 
-      - name: Run Gemini CLI Action
-        uses: google-github-actions/run-gemini-cli@v1
+      - name: Run ESLint
+        run: pnpm lint
+
+      - name: Run Tests
+        run: pnpm test || echo "Tests failed but continuing to AI review"
+
+      - name: Run Gemini CLI
+        uses: google-github-actions/run-gemini-cli@v0.1.1
         with:
           gemini_api_key: ${{ secrets.GEMINI_API_KEY }}
-          prompt: |
-            You are an AI assistant. Triage and label this issue and review this pull request.
+          prompt: 'Review this pull request according to our guidelines.'
+          settings: |
+            {
+              "config_file": "GEMINI.md"
+            }
