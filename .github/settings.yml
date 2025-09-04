@@ -1,0 +1,18 @@
+branches:
+  - name: main
+    protection:
+      required_pull_request_reviews:
+        required_approving_review_count: 0 # set to 0 if solo
+        dismiss_stale_reviews: true
+      required_status_checks:
+        strict: true
+        contexts:
+          - 'lint'
+          - 'test'
+          - 'Gemini AI Review'
+      enforce_admins: true
+      restrictions:
+        users: ['nikhildhole']
+        teams: []
+      required_conversation_resolution: true
+      signatures_required: false # set to true if you want signed commits
