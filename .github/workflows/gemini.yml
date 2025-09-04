@@ -1,0 +1,31 @@
+name: Gemini CLI AI Tasks
+
+on:
+  pull_request:
+    branches: [main]
+  workflow_dispatch: # allows manual trigger
+
+jobs:
+  ai-review:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+
+      - name: Set up Node.js
+        uses: actions/setup-node@v4
+        with:
+          node-version: 18
+
+      - name: Install pnpm
+        uses: pnpm/action-setup@v2
+        with:
+          version: 9
+          run_install: true
+
+      - name: Run Gemini CLI
+        uses: google-gemini/cli-action@v1
+        with:
+          task: 'review'
+          path: '.'
+        env:
+          GEMINI_API_KEY: ${{ secrets.GEMINI_API_KEY }}
