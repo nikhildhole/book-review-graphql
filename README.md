@@ -13,11 +13,29 @@ A Node.js + GraphQL server for managing books, users, and reviews.
 ## 🛠️ Setup
 
 ```bash
-git clone https://github.com/<your-username>/book-review-graphql.git
+git clone https://github.com/nikhildhole/book-review-graphql.git
 cd book-review-graphql
 pnpm install
 pnpm dev
 ```
+
+## 🐳 Docker
+
+You can build and run the API using Docker:
+
+### Build the Docker image
+
+```bash
+docker build -t book-review-api .
+```
+
+### Run the container
+
+```bash
+docker run -d -p 4000:4000 --name book-review-api book-review-api
+```
+
+The API will be available at `http://localhost:4000`.
 
 ## 📦 Tech Stack
 
