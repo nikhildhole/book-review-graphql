@@ -4,6 +4,7 @@
     "dbaeumer.vscode-eslint",
     "GitHub.vscode-github-actions",
     "GraphQL.vscode-graphql-syntax",
-    "apollographql.vscode-apollo"
+    "apollographql.vscode-apollo",
+    "ms-azuretools.vscode-containers"
   ]
 }
