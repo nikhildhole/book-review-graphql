@@ -13,11 +13,17 @@ WORKDIR /home/node/app
 # Copy package.json + lockfile
 COPY package.json pnpm-lock.yaml ./
 
-# Install dependencies
-RUN pnpm install --frozen-lockfile
+# Install all dependencies but skip scripts (avoids Husky running)
+RUN pnpm install --frozen-lockfile --ignore-scripts
 
 # Copy source code
 COPY . .
+
+# Optionally build your app here (if needed)
+# RUN pnpm build
+
+# Prune devDependencies to keep only production deps
+RUN pnpm prune --prod --ignore-scripts
 
 # ------------------------
 # 2. Runtime stage
@@ -32,7 +38,7 @@ RUN mkdir -p /home/node/app && chown -R node:node /home/node/app
 WORKDIR /home/node/app
 USER node
 
-# Copy built files and node_modules
+# Copy production dependencies + app code
 COPY --chown=node:node --from=builder /home/node/app/node_modules ./node_modules
 COPY --chown=node:node --from=builder /home/node/app ./
 
@@ -46,4 +52,4 @@ HEALTHCHECK --interval=30s --timeout=5s --start-period=10s --retries=3 \
   CMD wget -qO- http://localhost:4000/health || exit 1
 
 # Start app using PM2
-CMD ["pm2-runtime", "ecosystem.config.js"]
+CMD ["pm2-runtime", "ecosystem.config.js", "--env", "production"]
