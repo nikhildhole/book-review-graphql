@@ -26,7 +26,9 @@ jobs:
           version: 8 # or your required version
 
       - name: Install dependencies
-        run: pnpm install
+        run: |
+          pnpm install
+          pnpm dlx husky install   # ensure husky is set up
 
       - name: Lint
         run: pnpm run lint
