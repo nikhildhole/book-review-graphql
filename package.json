@@ -9,7 +9,11 @@
     "format": "prettier --write .",
     "dev": "nodemon src/index.js",
     "test": "jest",
-    "prepare": "husky"
+    "prepare": "husky",
+    "release": "standard-version",
+    "release:major": "standard-version --release-as major",
+    "release:minor": "standard-version --release-as minor",
+    "release:patch": "standard-version --release-as patch"
   },
   "lint-staged": {
     "*.js": [
@@ -27,6 +31,8 @@
     "graphql": "^16.11.0"
   },
   "devDependencies": {
+    "@commitlint/cli": "^19.8.1",
+    "@commitlint/config-conventional": "^19.8.1",
     "@eslint/js": "^9.34.0",
     "eslint": "^9.34.0",
     "eslint-config-prettier": "^10.1.8",
@@ -38,6 +44,7 @@
     "lint-staged": "^16.1.6",
     "nodemon": "^3.1.10",
     "prettier": "^3.6.2",
+    "standard-version": "^9.5.0",
     "typescript-eslint": "^8.42.0"
   }
 }
