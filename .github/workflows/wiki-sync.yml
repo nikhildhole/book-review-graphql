@@ -2,8 +2,10 @@ name: Sync Commit Conventions to Wiki
 
 on:
   push:
+    branches:
+      - main
     paths:
-      - 'docs/commit-conventions.md'
+      - 'docs/**'
 
 jobs:
   sync-wiki:
@@ -21,12 +23,12 @@ jobs:
           token: ${{ secrets.GITHUB_TOKEN }}
           path: wiki
 
-      - name: Copy file to wiki
+      - name: Copy docs to wiki
         run: |
-          cp docs/commit-conventions.md wiki/Commit-Conventions.md
+          cp -r docs/* wiki/
           cd wiki
           git config user.name "github-actions[bot]"
           git config user.email "41898282+github-actions[bot]@users.noreply.github.com"
-          git add Commit-Conventions.md
-          git commit -m "docs: sync commit conventions"
+          git add .
+          git commit -m "docs: sync all docs"
           git push
