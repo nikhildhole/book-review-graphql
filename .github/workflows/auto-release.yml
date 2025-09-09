@@ -47,14 +47,25 @@ jobs:
           fi
 
 
-      # 7️⃣ Bump version  locally (no commit/tag push)
+      # 7️⃣ Bump version based on latest tag
       - name: Bump version
         run: |
+          # Get latest tag from Git
+          LATEST_TAG=$(git describe --tags --abbrev=0 2>/dev/null || echo "v0.0.0")
+          echo "Latest tag: $LATEST_TAG"
+      
+          # Strip leading 'v' for version calculation
+          LATEST_VERSION=${LATEST_TAG#v}
+      
           if [ "${GITHUB_REF_NAME}" == "develop" ]; then
-            pnpm version prerelease --preid alpha --no-git-tag-version
+            # Bump prerelease based on latest version
+            NEXT_VERSION=$(npm version prerelease --preid alpha --no-git-tag-version --allow-same-version)
           else
-            pnpm version patch --no-git-tag-version
+            # Bump patch based on latest version
+            NEXT_VERSION=$(npm version patch --no-git-tag-version --allow-same-version)
           fi
+      
+          # Read new version from package.json
           VERSION=$(node -p "require('./package.json').version")
           echo "VERSION=$VERSION" >> $GITHUB_ENV
           echo "VERSION=$VERSION"
