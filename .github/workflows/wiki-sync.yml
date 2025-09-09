@@ -14,15 +14,11 @@ jobs:
         with:
           fetch-depth: 0
 
-      - name: Checkout Wiki repo
-        uses: actions/checkout@v4
-        with:
-          repository: ${{ github.repository }}
-          token: ${{ secrets.GH_PAT }}
-          path: wiki
-
       - name: Sync docs to wiki
         run: |
+          # Remove if wiki folder already exists
+          rm -rf wiki
+
           # Clone the wiki repo
           git clone https://github.com/${{ github.repository }}.wiki.git wiki
       
@@ -37,4 +33,3 @@ jobs:
           git add .
           git commit -m "Sync docs from main repo" || echo "No changes to commit"
           git push
-      
