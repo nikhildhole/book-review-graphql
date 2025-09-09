@@ -57,7 +57,7 @@ jobs:
           echo "VERSION=$VERSION" >> $GITHUB_ENV
           echo "VERSION=$VERSION"
 
-      # 8️⃣ Create GitHub Release (creates tag remotely)
+      # 8️⃣ Create GitHub Release (creates tag  remotely)
       - name: Create GitHub Release
         uses: ncipollo/release-action@v1
         with:
