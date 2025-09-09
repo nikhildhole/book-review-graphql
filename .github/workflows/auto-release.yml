@@ -53,22 +53,24 @@ jobs:
           # Get latest tag from Git
           LATEST_TAG=$(git describe --tags --abbrev=0 2>/dev/null || echo "v0.0.0")
           echo "Latest tag: $LATEST_TAG"
-      
+          
           # Strip leading 'v' for version calculation
           LATEST_VERSION=${LATEST_TAG#v}
-      
+          
           if [ "${GITHUB_REF_NAME}" == "develop" ]; then
-            # Bump prerelease based on latest version
-            NEXT_VERSION=$(npm version prerelease --preid alpha --no-git-tag-version --allow-same-version)
+            # Bump prerelease relative to latest tag
+            VERSION=$(node -p "let v='${LATEST_VERSION}'; let parts=v.split('.').map(Number); parts[2]++; v=parts.join('.') + '-alpha.0'; v")
           else
-            # Bump patch based on latest version
-            NEXT_VERSION=$(npm version patch --no-git-tag-version --allow-same-version)
+            # Bump patch relative to latest tag
+            VERSION=$(node -p "let v='${LATEST_VERSION}'; let parts=v.split('.').map(Number); parts[2]++; parts.join('.')")
           fi
-      
-          # Read new version from package.json
-          VERSION=$(node -p "require('./package.json').version")
+          
+          # Update package.json with the new version
+          npm version $VERSION --no-git-tag-version
+          
           echo "VERSION=$VERSION" >> $GITHUB_ENV
           echo "VERSION=$VERSION"
+
 
       # 8️⃣ Create GitHub Release (creates tag remotely)
       - name: Create GitHub Release
