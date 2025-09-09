@@ -47,18 +47,14 @@ jobs:
           git config --global user.email "github-actions[bot]@users.noreply.github.com"
           git config --global user.name "github-actions[bot]"
 
-      - name: Bump version & create tag
-        id: version
+      - name: Bump version & generate changelog
         run: |
           if [ "${GITHUB_REF_NAME}" == "develop" ]; then
-            # Pre-release for develop
-            pnpm version prerelease --preid alpha -m "chore(release): %s"
+            pnpm run release -- --prerelease alpha
           else
-            # Patch release for main
-            pnpm version patch -m "chore(release): %s"
+            pnpm run release
           fi
-          # Save new version to environment variable
-          echo "VERSION=$(node -p "require('./package.json').version")" >> $GITHUB_ENV
+
 
 
       - name: Push changes & tags
