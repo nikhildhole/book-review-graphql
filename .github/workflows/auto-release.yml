@@ -12,69 +12,57 @@ jobs:
     env:
       NODE_ENV: production
     steps:
+      # 1️⃣ Checkout full history so all tags are available
       - name: Checkout repository
         uses: actions/checkout@v3
         with:
-          fetch-depth: 0  # Fetch all history
+          fetch-depth: 0
 
+      # 2️⃣ Setup Node.js
       - name: Setup Node.js
         uses: actions/setup-node@v3
         with:
           node-version: 22
 
+      # 3️⃣ Setup pnpm
       - name: Setup pnpm
         uses: pnpm/action-setup@v2
         with:
           version: 10
 
-      - name: Install dependencies
-        run: pnpm install
+      # 4️⃣ Install dependencies
+      - run: pnpm install
 
-      - name: Lint
-        run: pnpm run lint
+      # 5️⃣ Lint & test
+      - run: pnpm run lint
+      - run: pnpm test
 
-      - name: Run tests
-        run: pnpm test
-
+      # 6️⃣ Determine environment
       - name: Determine environment
         run: |
           if [ "${GITHUB_REF_NAME}" == "develop" ]; then
             echo "ENV=development" >> $GITHUB_ENV
           else
             echo "ENV=production" >> $GITHUB_ENV
-          fi
 
-      - name: Set up git user
-        run: |
-          git config --global user.email "github-actions[bot]@users.noreply.github.com"
-          git config --global user.name "github-actions[bot]"
-
-      - name: Bump version & create tag
-        id: version
+      # 7️⃣ Bump version locally (no commit/tag push)
+      - name: Bump version
         run: |
           if [ "${GITHUB_REF_NAME}" == "develop" ]; then
-            pnpm version prerelease --preid alpha -m "chore(release): %s"
+            pnpm version prerelease --preid alpha --no-git-tag-version
           else
-            pnpm version patch -m "chore(release): %s"
+            pnpm version patch --no-git-tag-version
           fi
-          VERSION=$(node -p "require('${{ github.workspace }}/package.json').version")
+          VERSION=$(node -p "require('./package.json').version")
           echo "VERSION=$VERSION" >> $GITHUB_ENV
-          echo "VERSION=$VERSION"  # <-- helpful for debugging
+          echo "VERSION=$VERSION"
 
-
-      - name: Push changes & tags
-        uses: stefanzweifel/git-auto-commit-action@v6
-        with:
-          commit_message: 'chore(release): v${{ env.VERSION }}'
-          branch: ${{ github.ref_name }}
-          push_options: '--follow-tags'
-
-
+      # 8️⃣ Create GitHub Release (creates tag remotely)
       - name: Create GitHub Release
         uses: ncipollo/release-action@v1
         with:
-          tag: 'v${{ env.VERSION }}'
-          name: 'Release v${{ env.VERSION }}'
-          body: 'Automated release from commit ${{ github.sha }} on branch ${{ github.ref_name }}'
+          tag: "v${{ env.VERSION }}"
+          name: "Release v${{ env.VERSION }}"
+          body: "Automated release from commit ${{ github.sha }} on branch ${{ github.ref_name }}"
           token: ${{ secrets.GH_PAT }}
           skipIfReleaseExists: true
