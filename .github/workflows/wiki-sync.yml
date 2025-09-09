@@ -16,9 +16,6 @@ jobs:
 
       - name: Sync docs to wiki
         run: |
-          # Remove if wiki folder already exists
-          rm -rf wiki
-
           # Clone the wiki repo
           git clone https://github.com/${{ github.repository }}.wiki.git wiki
       
