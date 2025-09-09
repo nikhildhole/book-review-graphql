@@ -45,7 +45,7 @@ jobs:
           else
             echo "ENV=production" >> $GITHUB_ENV
 
-      # 7️⃣ Bump version locally (no commit/tag push)
+      # 7️⃣ Bump version  locally (no commit/tag push)
       - name: Bump version
         run: |
           if [ "${GITHUB_REF_NAME}" == "develop" ]; then
