@@ -35,7 +35,7 @@ docker build -t book-review-api .
 docker run -d -p 4000:4000 --name book-review-api book-review-api
 ```
 
-The API will be available at `https://localhost:4000`.
+The API will be available at `http://localhost:4000`.
 
 ## 📦 Tech Stack
 
