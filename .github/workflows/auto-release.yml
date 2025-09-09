@@ -23,12 +23,10 @@ jobs:
       - name: Setup pnpm
         uses: pnpm/action-setup@v2
         with:
-          version: 8 # or your required version
+          version: 10 # or your required version
 
       - name: Install dependencies
-        run: |
-          pnpm dlx husky install   # ensure husky is set up
-          pnpm install
+        run: pnpm install
 
       - name: Lint
         run: pnpm run lint
