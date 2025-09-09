@@ -21,13 +21,20 @@ jobs:
           token: ${{ secrets.GH_PAT }}
           path: wiki
 
-      - name: Sync docs
+      - name: Sync docs to wiki
         run: |
+          # Clone the wiki repo
+          git clone https://github.com/${{ github.repository }}.wiki.git wiki
+      
+          # Copy files into it
           cp README.md wiki/Home.md
-          cp docs/*.md wiki/
+          cp docs/*.md wiki/ || true  # avoid error if no docs
+      
+          # Commit + push
           cd wiki
           git config user.name "github-actions[bot]"
           git config user.email "github-actions[bot]@users.noreply.github.com"
           git add .
-          git commit -m "Sync docs from main repo"
+          git commit -m "Sync docs from main repo" || echo "No changes to commit"
           git push
+      
