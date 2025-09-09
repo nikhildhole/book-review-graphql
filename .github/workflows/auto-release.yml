@@ -50,9 +50,11 @@ jobs:
       - name: Bump version & create tag
         id: version
         run: |
+          echo ${GITHUB_REF_NAME}
           if [ "${GITHUB_REF_NAME}" == "develop" ]; then
             pnpm version prerelease --preid alpha -m "chore(release): %s"
           else
+            echo "inside else"
             pnpm version patch -m "chore(release): %s"
           fi
           VERSION=$(node -p "require('${{ github.workspace }}/package.json').version")
