@@ -18,13 +18,12 @@ jobs:
       - name: Setup Node.js
         uses: actions/setup-node@v3
         with:
-          node-version: 18
-          cache: 'pnpm'
+          node-version: 22
 
-      - name: Install pnpm
+      - name: Setup pnpm
         uses: pnpm/action-setup@v2
         with:
-          version: 8
+          version: 10 # or your required version
 
       - name: Install dependencies
         run: pnpm install
@@ -38,10 +37,15 @@ jobs:
       - name: Determine environment
         run: |
           if [ "${GITHUB_REF_NAME}" == "develop" ]; then
-            echo "ENV=development" >> $GITHUB_ENV
+          echo "ENV=development" >> $GITHUB_ENV
           else
-            echo "ENV=production" >> $GITHUB_ENV
+          echo "ENV=production" >> $GITHUB_ENV
           fi
+
+      - name: Set up git user
+        run: |
+          git config --global user.email "github-actions[bot]@users.noreply.github.com"
+          git config --global user.name "github-actions[bot]"
 
       - name: Bump version & create tag
         id: version
@@ -67,3 +71,4 @@ jobs:
           tag: 'v${{ env.VERSION }}'
           name: 'Release v${{ env.VERSION }}'
           body: 'Automated release from commit ${{ github.sha }} on branch ${{ github.ref_name }}'
+          token: ${{ secrets.GH_PAT }}
