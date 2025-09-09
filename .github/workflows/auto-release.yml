@@ -64,9 +64,9 @@ jobs:
         uses: stefanzweifel/git-auto-commit-action@v6
         with:
           commit_message: 'chore(release): v${{ env.VERSION }}'
-          tag: 'v${{ env.VERSION }}'
           branch: ${{ github.ref_name }}
           push_options: '--follow-tags'
+
 
       - name: Create GitHub Release
         uses: ncipollo/release-action@v1
