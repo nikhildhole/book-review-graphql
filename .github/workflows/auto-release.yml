@@ -37,10 +37,15 @@ jobs:
       - name: Determine environment
         run: |
           if [ "${GITHUB_REF_NAME}" == "develop" ]; then
-            echo "ENV=development" >> $GITHUB_ENV
+          echo "ENV=development" >> $GITHUB_ENV
           else
-            echo "ENV=production" >> $GITHUB_ENV
+          echo "ENV=production" >> $GITHUB_ENV
           fi
+
+      - name: Set up git user
+        run: |
+          git config --global user.email "github-actions[bot]@users.noreply.github.com"
+          git config --global user.name "github-actions[bot]"
 
       - name: Bump version & create tag
         id: version
