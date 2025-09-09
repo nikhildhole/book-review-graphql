@@ -71,3 +71,4 @@ jobs:
           tag: 'v${{ env.VERSION }}'
           name: 'Release v${{ env.VERSION }}'
           body: 'Automated release from commit ${{ github.sha }} on branch ${{ github.ref_name }}'
+          token: ${{ secrets.GH_PAT }}
