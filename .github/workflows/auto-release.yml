@@ -44,6 +44,8 @@ jobs:
             echo "ENV=development" >> $GITHUB_ENV
           else
             echo "ENV=production" >> $GITHUB_ENV
+          fi
+
 
       # 7️⃣ Bump version  locally (no commit/tag push)
       - name: Bump version
