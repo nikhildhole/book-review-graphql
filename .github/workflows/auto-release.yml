@@ -57,6 +57,7 @@ jobs:
           fi
           echo "VERSION=$(node -p "require('./package.json').version")" >> $GITHUB_ENV
 
+
       - name: Push changes & tags
         uses: stefanzweifel/git-auto-commit-action@v6
         with:
