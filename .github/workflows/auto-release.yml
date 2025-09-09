@@ -23,7 +23,7 @@ jobs:
       - name: Setup pnpm
         uses: pnpm/action-setup@v2
         with:
-          version: 10 # or your required version
+          version: 10
 
       - name: Install dependencies
         run: pnpm install
@@ -37,9 +37,9 @@ jobs:
       - name: Determine environment
         run: |
           if [ "${GITHUB_REF_NAME}" == "develop" ]; then
-          echo "ENV=development" >> $GITHUB_ENV
+            echo "ENV=development" >> $GITHUB_ENV
           else
-          echo "ENV=production" >> $GITHUB_ENV
+            echo "ENV=production" >> $GITHUB_ENV
           fi
 
       - name: Set up git user
@@ -51,12 +51,14 @@ jobs:
         id: version
         run: |
           if [ "${GITHUB_REF_NAME}" == "develop" ]; then
-            pnpm run release -- --prerelease alpha
+            # Pre-release version for develop
+            pnpm version prerelease --preid alpha -m "chore(release): %s"
           else
-            pnpm run release
+            # Patch release for main
+            pnpm version patch -m "chore(release): %s"
           fi
+          # Save new version to env
           echo "VERSION=$(node -p "require('./package.json').version")" >> $GITHUB_ENV
-
 
       - name: Push changes & tags
         uses: stefanzweifel/git-auto-commit-action@v6
@@ -74,4 +76,3 @@ jobs:
           body: 'Automated release from commit ${{ github.sha }} on branch ${{ github.ref_name }}'
           token: ${{ secrets.GH_PAT }}
           skipIfReleaseExists: true
-
