@@ -11,35 +11,66 @@ jobs:
       pull-requests: write
     steps:
       - uses: actions/checkout@v3
+
       - name: "Get diff of the pull request"
         id: get_diff
         shell: bash
         env:
           PULL_REQUEST_HEAD_REF: "${{ github.event.pull_request.head.ref }}"
           PULL_REQUEST_BASE_REF: "${{ github.event.pull_request.base.ref }}"
-        run: |-
+        run: |
           git fetch origin "${{ env.PULL_REQUEST_HEAD_REF }}"
           git fetch origin "${{ env.PULL_REQUEST_BASE_REF }}"
           git checkout "${{ env.PULL_REQUEST_HEAD_REF }}"
           git diff "origin/${{ env.PULL_REQUEST_BASE_REF }}" > "diff.txt"
           {
-            echo "pull_request_diff<<EOF";
-            cat "diff.txt";
-            echo 'EOF';
+            echo "pull_request_diff<<EOF"
+            cat "diff.txt"
+            echo "EOF"
           } >> $GITHUB_OUTPUT
-      - uses: rubensflinco/gemini-code-review-action@1.0.5
-        name: "Code Review by Gemini AI"
-        id: review
-        with:
-          gemini_api_key: ${{ secrets.GEMINI_API_KEY }}
-          github_token: ${{ secrets.GITHUB_TOKEN }}
-          github_repository: ${{ github.repository }}
-          github_pull_request_number: ${{ github.event.pull_request.number }}
-          git_commit_hash: ${{ github.event.pull_request.head.sha }}
-          model: "gemini-1.5-pro-latest"
-          pull_request_diff: |-
-            ${{ steps.get_diff.outputs.pull_request_diff }}
-          pull_request_chunk_size: "3500"
-          extra_prompt: |-
-            Sempre responda em português brasileiro!
-          log_level: "DEBUG"
+
+      - name: "Run Gemini AI code review"
+        id: custom_review
+        shell: bash
+        env:
+          GEMINI_API_KEY: ${{ secrets.GEMINI_API_KEY }}
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+          GITHUB_REPOSITORY: ${{ github.repository }}
+          GITHUB_PULL_REQUEST_NUMBER: ${{ github.event.pull_request.number }}
+          PULL_REQUEST_DIFF: ${{ steps.get_diff.outputs.pull_request_diff }}
+        run: |
+          set -e
+
+          CHUNK_SIZE=1000   # Adjust to avoid Free Tier quota
+          echo "$PULL_REQUEST_DIFF" > full_diff.txt
+
+          # Split diff into smaller chunks
+          split -l $CHUNK_SIZE full_diff.txt chunk_
+
+          for chunk_file in chunk_*; do
+            CHUNK=$(cat $chunk_file | sed 's/"/\\"/g' | sed "s/'/\\'/g")
+
+            # Call Gemini API
+            RESPONSE=$(curl -s -X POST "https://api.generativeai.googleapis.com/v1beta/models/gemini-1.5-pro:generateContent" \
+              -H "Authorization: Bearer $GEMINI_API_KEY" \
+              -H "Content-Type: application/json" \
+              -d "{
+                    \"prompt\": \"$CHUNK\n\nSempre responda em português brasileiro!\",
+                    \"temperature\": 0.7,
+                    \"maxOutputTokens\": 256
+                  }")
+
+            # Extract AI message
+            REVIEW=$(echo $RESPONSE | jq -r '.candidates[0].content[0].text')
+
+            if [ ! -z "$REVIEW" ]; then
+              # Post comment to GitHub PR
+              curl -s -X POST "https://api.github.com/repos/$GITHUB_REPOSITORY/issues/$GITHUB_PULL_REQUEST_NUMBER/comments" \
+                -H "Authorization: token $GITHUB_TOKEN" \
+                -H "Content-Type: application/json" \
+                -d "{\"body\": \"$REVIEW\"}"
+            fi
+
+            # Sleep to respect Free Tier limits
+            sleep 10
+          done
